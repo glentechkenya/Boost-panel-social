@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GLENTECH Booster Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial; background: #0f2027; color: white; text-align:center; }
+    .box { max-width: 500px; margin:auto; padding:20px; background:#1b2a33; border-radius:10px; }
+    input, select, button { width:100%; padding:10px; margin-top:10px; border-radius:5px; border:none; }
+    button { background:#00c6ff; font-weight:bold; cursor:pointer; }
+    #result { margin-top:15px; background:black; padding:10px; border-radius:5px; font-size:13px; }
+  </style>
+</head>
+<body>
+
+<h2>🚀 GLENTECH BOOSTER PANEL</h2>
+
+<div class="box">
+  <label>Select Service</label>
+  <select id="services"></select>
+
+  <input type="text" id="link" placeholder="Enter link">
+  <input type="number" id="quantity" placeholder="Quantity">
+
+  <button onclick="placeOrder()">Place Order</button>
+
+  <input type="number" id="orderId" placeholder="Check Order ID">
+  <button onclick="checkStatus()">Check Status</button>
+
+  <div id="result">Response will appear here...</div>
+</div>
+
+<script>
+async function loadServices() {
+  const res = await fetch("/services");
+  const services = await res.json();
+  const select = document.getElementById("services");
+
+  services.forEach(s => {
+    const option = document.createElement("option");
+    option.value = s.service;
+    option.textContent = `${s.name} | ${s.category} | Min:${s.min} Max:${s.max}`;
+    select.appendChild(option);
+  });
+}
+
+async function placeOrder() {
+  const service = document.getElementById("services").value;
+  const link = document.getElementById("link").value;
+  const quantity = document.getElementById("quantity").value;
+
+  const res = await fetch("/order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ service, link, quantity })
+  });
+
+  const data = await res.json();
+  document.getElementById("result").innerText = JSON.stringify(data, null, 2);
+}
+
+async function checkStatus() {
+  const id = document.getElementById("orderId").value;
+  const res = await fetch("/status/" + id);
+  const data = await res.json();
+  document.getElementById("result").innerText = JSON.stringify(data, null, 2);
+}
+
+loadServices();
+</script>
+
+</body>
+</html>
